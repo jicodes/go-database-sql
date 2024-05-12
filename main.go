@@ -1,16 +1,17 @@
 package main
 
 import (
-	"database/sql"
-  _ "github.com/lib/pq"
 	"log"
 	"os"
+
+	"database/sql"
+
+	_ "github.com/lib/pq"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
-
 	// Load the .env file
 	err := godotenv.Load()
 	if err != nil {
@@ -25,8 +26,27 @@ func main() {
 	}
 	defer db.Close()
 
-  // Check if the connection is alive
-  if err = db.Ping(); err != nil {
-    log.Fatalf("Error pinging database: %q", err)
-  }
+	// Check if the connection is alive
+	if err = db.Ping(); err != nil {
+		log.Fatalf("Error pinging database: %q", err)
+	}
+
+  // Create the products table
+  createProductsTable(db)
+}
+
+func createProductsTable(db *sql.DB) {
+	// Create a new table
+	query := `CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price NUMERIC(6, 2) NOT NULL,
+    available BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );`
+
+	_, err := db.Exec(query)
+	if err != nil {
+		log.Fatalf("Error creating table: %q", err)
+	}
 }

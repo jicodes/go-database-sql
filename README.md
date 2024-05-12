@@ -31,3 +31,13 @@ go get github.com/lib/pq
 ```
 
 The `database/sql` package provides a general interface around SQL (or SQL-like) databases, and `pq` driver implements this interface for PostgreSQL.
+
+It is not used directly so it should be imported in the code together with the `database/sql` package to register the driver with a underscore `_` prefix.
+
+```go
+import (
+	"database/sql"
+  _ "github.com/lib/pq"
+)
+```
+
