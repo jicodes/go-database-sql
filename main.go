@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+  "fmt"
 
 	"database/sql"
 
@@ -10,6 +11,12 @@ import (
 
 	"github.com/joho/godotenv"
 )
+
+type Product struct {
+	Name      string
+	Price     float64
+	Available bool
+}
 
 func main() {
 	// Load the .env file
@@ -31,8 +38,13 @@ func main() {
 		log.Fatalf("Error pinging database: %q", err)
 	}
 
-  // Create the products table
-  createProductsTable(db)
+	// Create the products table
+	createProductsTable(db)
+	// Insert a new product
+	product := Product{"egg", 2.99, true}
+
+	id := insertProduct(db, product)
+	fmt.Printf("Product inserted with id: %d\n", id)
 }
 
 func createProductsTable(db *sql.DB) {
@@ -49,4 +61,16 @@ func createProductsTable(db *sql.DB) {
 	if err != nil {
 		log.Fatalf("Error creating table: %q", err)
 	}
+}
+
+func insertProduct(db *sql.DB, product Product) int {
+	// Insert a new product
+	query := `INSERT INTO products (name, price, available) VALUES ($1, $2, $3) RETURNING id;`
+	var id int
+
+	err := db.QueryRow(query, product.Name, product.Price, product.Available).Scan(&id)
+	if err != nil {
+		log.Fatalf("Error inserting product: %q", err)
+	}
+	return id
 }
