@@ -47,22 +47,39 @@ func main() {
 	fmt.Printf("Product inserted with id: %d\n", id)
 
 	// query Single row
-	var p Product
+	// var p Product
 
-	query := "SELECT name, price, available FROM products WHERE id = $1"
-	err = db.QueryRow(query, id).Scan(&p.Name, &p.Price, &p.Available)
+	// query := "SELECT name, price, available FROM products WHERE id = $1"
+	// err = db.QueryRow(query, id).Scan(&p.Name, &p.Price, &p.Available)
 
+	// if err != nil {
+	// 	if err == sql.ErrNoRows {
+	// 		log.Fatalf("No product found with the id %d\n", id)
+	// 	} else {
+	// 		log.Fatalf("Error scanning product: %q", err)
+	// 	}
+	// }
+
+	// fmt.Printf("Name: %s\n", p.Name)
+	// fmt.Printf("Price: %.2f\n", p.Price)       // %.2f - prints float with 2 decimal places
+	// fmt.Printf("Available: %t\n", p.Available) // %t - prints true or false
+
+	// query Multiple rows
+	data := []Product{}
+	rows, err := db.Query("SELECT name, price, available FROM products")
 	if err != nil {
-		if err == sql.ErrNoRows {
-			log.Fatalf("No product found with the id %d\n", id)
-		} else {
-			log.Fatalf("Error scanning product: %q", err)
-		}
+		log.Fatal(err)
 	}
+	defer rows.Close()
 
-	fmt.Printf("Name: %s\n", p.Name)
-	fmt.Printf("Price: %.2f\n", p.Price)       // %.2f - prints float with 2 decimal places
-	fmt.Printf("Available: %t\n", p.Available) // %t - prints true or false
+	for rows.Next() {
+		var p Product
+		if err := rows.Scan(&p.Name, &p.Price, &p.Available); err != nil {
+			log.Fatal(err)
+		}
+		data = append(data, p)
+	}
+	fmt.Println(data)
 }
 
 func createProductsTable(db *sql.DB) {
