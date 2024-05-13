@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
-  "fmt"
 
 	"database/sql"
 
@@ -41,10 +41,29 @@ func main() {
 	// Create the products table
 	createProductsTable(db)
 	// Insert a new product
-	product := Product{"egg", 2.99, true}
+	product := Product{"pc", 699.00, true}
 
 	id := insertProduct(db, product)
 	fmt.Printf("Product inserted with id: %d\n", id)
+
+	var name string
+	var available bool
+	var price float64
+
+	query := "SELECT name, available, price FROM products WHERE id = $1"
+	err = db.QueryRow(query, 11).Scan(&name, &available, &price)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Fatalf("No product found with the id %d\n", id)
+		} else {
+			log.Fatalf("Error scanning product: %q", err)
+		}
+	}
+
+	fmt.Printf("Name: %s\n", name)
+	fmt.Printf("Available: %t\n", available) // %t - prints true or false
+	fmt.Printf("Price: %.2f\n", price)       // %.2f - prints float with 2 decimal places
 }
 
 func createProductsTable(db *sql.DB) {
