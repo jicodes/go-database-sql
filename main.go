@@ -46,12 +46,11 @@ func main() {
 	id := insertProduct(db, product)
 	fmt.Printf("Product inserted with id: %d\n", id)
 
-	var name string
-	var available bool
-	var price float64
+	// query Single row
+	var p Product
 
-	query := "SELECT name, available, price FROM products WHERE id = $1"
-	err = db.QueryRow(query, 11).Scan(&name, &available, &price)
+	query := "SELECT name, price, available FROM products WHERE id = $1"
+	err = db.QueryRow(query, id).Scan(&p.Name, &p.Price, &p.Available)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -61,9 +60,9 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Name: %s\n", name)
-	fmt.Printf("Available: %t\n", available) // %t - prints true or false
-	fmt.Printf("Price: %.2f\n", price)       // %.2f - prints float with 2 decimal places
+	fmt.Printf("Name: %s\n", p.Name)
+	fmt.Printf("Price: %.2f\n", p.Price)       // %.2f - prints float with 2 decimal places
+	fmt.Printf("Available: %t\n", p.Available) // %t - prints true or false
 }
 
 func createProductsTable(db *sql.DB) {
